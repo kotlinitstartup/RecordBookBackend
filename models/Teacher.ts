@@ -1,4 +1,4 @@
-import { Model } from 'sequelize';
+import { Model, Optional } from 'sequelize';
 import { Models, Sequelize } from './index';
 
 export type TeacherAttributes = {
@@ -10,11 +10,18 @@ export type TeacherAttributes = {
   password: string;
 };
 
-export type TeacherCreateAttributes = Partial<TeacherAttributes>;
+export type TeacherCreateAttributes = Optional<TeacherAttributes, 'id'>;
 
 export interface Teacher
   extends Model<TeacherAttributes, TeacherCreateAttributes>,
-    TeacherAttributes {}
+    TeacherAttributes {
+  id: number;
+  firstname: string;
+  lastname: boolean;
+  patronymic: string;
+  email: string;
+  password: string;
+}
 
 export default (sequelize: Sequelize, DataTypes: any) => {
   const Teacher = sequelize.define<Teacher>(
@@ -23,6 +30,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       firstname: {
         type: DataTypes.STRING,

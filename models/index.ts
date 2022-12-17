@@ -30,12 +30,12 @@ const sequelizeConfig = {
 const sequelize = new Sequelize(sequelizeConfig);
 
 export type Models = {
-  Student?: ModelCtor<Student>;
-  Speciality?: ModelCtor<Speciality>;
-  Teacher?: ModelCtor<Teacher>;
-  Subject?: ModelCtor<Subject>;
-  Faculty?: ModelCtor<Faculty>;
-  Group?: ModelCtor<Group>;
+  Student: ModelCtor<Student>;
+  Speciality: ModelCtor<Speciality>;
+  Teacher: ModelCtor<Teacher>;
+  Subject: ModelCtor<Subject>;
+  Faculty: ModelCtor<Faculty>;
+  Group: ModelCtor<Group>;
 };
 
 // @ts-ignore TODO:
