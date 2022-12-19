@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start-dev": "dotenv -e .env npx nodemon",
+    "start-dev": "DISABLE_DEBUGGING=true && webpack -w --mode development",
     "prod": "concurrently \"yarn build\" \"pm2 start dist/app.js --name 'recordsBooks'\"",
     "build": "npx tsc",
     "start": "node dist/bundle.js"
