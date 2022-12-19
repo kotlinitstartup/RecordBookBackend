@@ -1,7 +1,6 @@
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const NodemonPlugin = require('nodemon-webpack-plugin');
 const path = require('path');
-const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 const webpack = require('webpack');
 
@@ -36,8 +35,8 @@ module.exports = {
         test: /\.ts$/,
         use: {
           loader: 'ts-loader',
+          options: { configFile: 'tsconfig.json' },
         },
-        exclude: [path.resolve(__dirname, 'test')],
       },
     ],
   },
@@ -63,17 +62,9 @@ module.exports = {
             require.resolve('source-map-support/register')
       }');`,
     }),
-    new FriendlyErrorsWebpackPlugin({
-      clearConsole: process.env.NODE_ENV !== 'production',
-    }),
     new NodemonPlugin({
       // Node arguments.
-      nodeArgs: [
-        ...(!process.env.DISABLE_DEBUGGING && ['--inspect=0.0.0.0:9229']),
-        '-r',
-        'dotenv/config',
-      ],
-      ignore: ['*.test.js', '*.test.ts', 'fixtures/*', 'scripts/*'],
+      nodeArgs: ['-r', 'dotenv/config'],
       signal: 'SIGINT',
       ext: 'ts,js,json',
     }),

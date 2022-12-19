@@ -1,29 +1,16 @@
 import bcrypt from 'bcrypt';
 import { Response, Router } from 'express';
 import { check, matchedData } from 'express-validator';
-import jwt from 'jsonwebtoken';
 import { HTTP_STATUS_CODES } from '../../../constants/httpStatusCodes';
-import { jwtAuthTeachers } from '../../../middlewares/jwtAuthTeachers';
 import { onlyAdmin } from '../../../middlewares/onlyAdmin';
 import validateErrorsHandler from '../../../middlewares/validateErrorsHandler';
 import { models } from '../../../models';
 import { TypedRequestWithBody } from '../../../types/express';
 import { LoginPayload } from './login.dto';
 
-const teachersAuthRouter = Router();
+const studentsAuthRouter = Router();
 
-const signPayload = (payload: { id: number }) =>
-  jwt.sign(payload, process.env.JWT_SECRET);
-
-teachersAuthRouter.get(
-  '/test',
-  jwtAuthTeachers,
-  async (req: TypedRequestWithBody<LoginPayload>, res: Response) => {
-    res.send(res.locals.user);
-  },
-);
-
-teachersAuthRouter.post(
+studentsAuthRouter.post(
   '/login',
   check('email').isEmail().withMessage('Вы передали не email'),
   check('password')
@@ -58,20 +45,15 @@ teachersAuthRouter.post(
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED);
     }
 
-    const userPayload = {
+    return res.status(HTTP_STATUS_CODES.OK).json({
       id: currentTeacher.id,
       firstname: currentTeacher.firstname,
       lastname: currentTeacher.lastname,
-    };
-
-    return res.status(HTTP_STATUS_CODES.OK).json({
-      user: userPayload,
-      token: signPayload({ id: userPayload.id }),
     });
   },
 );
 
-teachersAuthRouter.post(
+studentsAuthRouter.post(
   '/signup',
   onlyAdmin,
   check('email').isEmail().withMessage('Вы передали не email'),
@@ -107,4 +89,4 @@ teachersAuthRouter.post(
   },
 );
 
-export { teachersAuthRouter };
+export { studentsAuthRouter };

@@ -10,12 +10,6 @@
     "outDir": "./dist",
     "strict": false,
     "noImplicitThis": false,
-    "baseUrl": "./",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "inlineSourceMap": true,

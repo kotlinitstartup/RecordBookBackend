@@ -54,15 +54,15 @@ if (typeof require.context === 'undefined') {
     function readDirectory(directory) {
       fs.readdirSync(directory).forEach((file) => {
         const fullPath = path.resolve(directory, file);
-        console.log('fullPath', fullPath);
+        // console.log('fullPath', fullPath);
         if (fs.statSync(fullPath).isDirectory()) {
           if (scanSubDirectories) readDirectory(fullPath);
           return;
         }
-        console.log(
-          'regularExpression.test(fullPath)',
-          regularExpression.test(fullPath),
-        );
+        // console.log(
+        //   'regularExpression.test(fullPath)',
+        //   regularExpression.test(fullPath),
+        // );
         if (!regularExpression.test(fullPath)) return;
         //@ts-ignore TODO:
         files[fullPath] = true;
