@@ -33,6 +33,7 @@
     "lodash": "^4.17.21",
     "nodemon-webpack-plugin": "^4.3.2",
     "pg": "^8.8.0",
+    "pm2": "^5.2.2",
     "sequelize": "^6.3.0",
     "sequelize-cli": "^5.5.1",
     "ts-loader": "^8.0.11",
