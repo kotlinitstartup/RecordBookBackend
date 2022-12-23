@@ -24,7 +24,6 @@ module.exports = {
             exclude: [/node_modules[\\/]core-js/],
             plugins: [
               '@babel/plugin-transform-runtime',
-              'lodash',
               ['@babel/plugin-proposal-class-properties', { loose: true }],
               ['@babel/plugin-proposal-private-methods', { loose: true }],
             ],
