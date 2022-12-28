@@ -1,5 +1,4 @@
 import { DataTypes, ModelCtor, Sequelize } from 'sequelize';
-import { Options } from 'sequelize/types/sequelize';
 import type { Credit } from './Credit';
 import type { CreditStatuses } from './CreditStatuses';
 import type { Exam } from './Exam';
@@ -12,23 +11,7 @@ import type { Student } from './Student';
 import type { Subject } from './Subject';
 import type { Teacher } from './Teacher';
 
-const { env } = process;
-
-const sequelizeConfig = {
-  username: env.DB_USERNAME,
-  password: env.DB_PASSWORD,
-  database: env.DB_NAME,
-  host: env.DB_HOST,
-  port: 5432,
-  logging: false,
-  dialect: env.DB_TYPE || 'postgres',
-  dialectOptions: { decimalNumbers: true },
-  seederStorage: 'sequelize',
-  pool: {
-    max: 30,
-    acquire: 60000,
-  },
-} as Options;
+const sequelizeConfig = require('../config/sequelizeConfig');
 
 const sequelize = new Sequelize(sequelizeConfig);
 
