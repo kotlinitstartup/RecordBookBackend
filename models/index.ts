@@ -1,13 +1,16 @@
-import fs from 'fs';
-import path from 'path';
 import { DataTypes, ModelCtor, Sequelize } from 'sequelize';
 import { Options } from 'sequelize/types/sequelize';
-import { Faculty } from './Faculty';
-import { Group } from './Group';
-import { Speciality } from './Speciality';
-import { Student } from './Student';
-import { Subject } from './Subject';
-import { Teacher } from './Teacher';
+import type { Credit } from './Credit';
+import type { CreditStatuses } from './CreditStatuses';
+import type { Exam } from './Exam';
+import type { Faculty } from './Faculty';
+import type { Group } from './Group';
+import { RecordBook } from './RecordBook';
+import { Semester } from './Semester';
+import type { Speciality } from './Speciality';
+import type { Student } from './Student';
+import type { Subject } from './Subject';
+import type { Teacher } from './Teacher';
 
 const { env } = process;
 
@@ -36,75 +39,36 @@ export type Models = {
   Subject: ModelCtor<Subject>;
   Faculty: ModelCtor<Faculty>;
   Group: ModelCtor<Group>;
+  Credit: ModelCtor<Credit>;
+  CreditStatuses: ModelCtor<CreditStatuses>;
+  Exam: ModelCtor<Exam>;
+  Semester: ModelCtor<Semester>;
+  RecordBook: ModelCtor<RecordBook>;
 };
 
 // @ts-ignore TODO:
 const models: Models = {};
 
-if (typeof require.context === 'undefined') {
-  // @ts-ignore TODO:
-  require.context = (
-    base = '.',
-    scanSubDirectories = false,
-    regularExpression = /\.ts$/,
-  ) => {
-    const files = {};
-
-    //@ts-ignore TODO:
-    function readDirectory(directory) {
-      fs.readdirSync(directory).forEach((file) => {
-        const fullPath = path.resolve(directory, file);
-        // console.log('fullPath', fullPath);
-        if (fs.statSync(fullPath).isDirectory()) {
-          if (scanSubDirectories) readDirectory(fullPath);
-          return;
-        }
-        // console.log(
-        //   'regularExpression.test(fullPath)',
-        //   regularExpression.test(fullPath),
-        // );
-        if (!regularExpression.test(fullPath)) return;
-        //@ts-ignore TODO:
-        files[fullPath] = true;
-      });
-    }
-    readDirectory(path.resolve(__dirname, base));
-
-    //@ts-ignore TODO:
-    const Module = (file) => require(file);
-    Module.keys = () => Object.keys(files);
-    return Module;
-  };
-}
-
-const importModels = (r: ReturnType<typeof require.context>) => {
-  const keys = r.keys();
-
-  const validKeys = keys.filter((filename) => !filename.includes('index.ts'));
-
-  validKeys.forEach((filename) => {
-    const modelInit = r(filename).default;
-    const model = modelInit(sequelize, DataTypes);
-
-    // @ts-ignore TODO:
-    models[model.name] = model;
-  });
-};
-
-// Import all the models from the require context
-importModels(
-  require.context('./', true, /^(?!.*(\.spec)\.ts$).*(?:\.(js|ts))$/),
-);
-
-Object.keys(models).forEach((modelName) => {
-  //@ts-ignore TODO:
-  if (models[modelName].associate) {
-    //@ts-ignore TODO:
-    models[modelName].associate(models);
-  }
+[
+  require('./RecordBook'),
+  require('./Semester'),
+  require('./Credit'),
+  require('./CreditStatuses'),
+  require('./Exam'),
+  require('./Faculty'),
+  require('./Group'),
+  require('./Speciality'),
+  require('./Student'),
+  require('./Subject'),
+  require('./Teacher'),
+].forEach(({ default: mdl }) => {
+  const model = mdl(sequelize, DataTypes);
+  models[model.name] = model;
 });
 
-sequelize.sync();
-// sequelize.sync({ force: true });
+// @ts-ignore Потому что ради одного раза не буду расширять тайпинги
+Object.values(models).forEach((mdl) => mdl?.associate?.(models));
+
+sequelize.sync({ alter: true });
 
 export { models, sequelize, Sequelize };

@@ -3,7 +3,6 @@ import { Response, Router } from 'express';
 import { check, matchedData } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { HTTP_STATUS_CODES } from '../../../constants/httpStatusCodes';
-import { jwtAuthTeachers } from '../../../middlewares/jwtAuthTeachers';
 import { onlyAdmin } from '../../../middlewares/onlyAdmin';
 import validateErrorsHandler from '../../../middlewares/validateErrorsHandler';
 import { models } from '../../../models';
@@ -14,14 +13,6 @@ const teachersAuthRouter = Router();
 
 const signPayload = (payload: { id: number }) =>
   jwt.sign(payload, process.env.JWT_SECRET);
-
-teachersAuthRouter.get(
-  '/test',
-  jwtAuthTeachers,
-  async (req: TypedRequestWithBody<LoginPayload>, res: Response) => {
-    res.send(res.locals.user);
-  },
-);
 
 teachersAuthRouter.post(
   '/login',
@@ -34,7 +25,6 @@ teachersAuthRouter.post(
   validateErrorsHandler,
   async (req: TypedRequestWithBody<LoginPayload>, res: Response) => {
     const { email, password } = matchedData(req);
-    console.log('{ email, password } ', { email, password });
 
     const currentTeacher = await models.Teacher.findOne({
       where: {
@@ -92,6 +82,8 @@ teachersAuthRouter.post(
       },
     );
 
+    console.log(email, firstname, lastname, patronymic, password);
+
     const salt = await bcrypt.genSalt(10);
     const hashingPassword = await bcrypt.hash(password, salt);
 
@@ -103,7 +95,9 @@ teachersAuthRouter.post(
       password: hashingPassword,
     });
 
-    return res.status(HTTP_STATUS_CODES.OK);
+    console.log('Успех логина');
+
+    return res.sendStatus(HTTP_STATUS_CODES.OK);
   },
 );
 

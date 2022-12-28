@@ -4,6 +4,7 @@ import { Models, Sequelize } from './index';
 export type SpecialityAttributes = {
   id: number;
   name: string;
+  facultyId: number;
 };
 
 export type SpecialityCreateAttributes = Partial<SpecialityAttributes>;
@@ -19,23 +20,33 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
+      facultyId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     {
-      timestamps: false,
+      tableName: 'Specialities',
+      modelName: 'Speciality',
     },
   );
 
   //@ts-ignore TODO:
   Speciality.associate = function (models: Models) {
-    //@ts-ignore TODO:
-    this.hasMany(models.Student, {
-      as: 'students',
+    this.belongsTo(models.Faculty, {
+      as: 'faculty',
+      foreignKey: 'facultyId',
+    });
+
+    this.hasMany(models.Group, {
+      as: 'groups',
       foreignKey: 'specialityId',
     });
   };

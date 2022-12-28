@@ -1,4 +1,5 @@
 import { Model } from 'sequelize';
+import { Group } from './Group';
 import { Models, Sequelize } from './index';
 
 export type StudentAttributes = {
@@ -7,15 +8,23 @@ export type StudentAttributes = {
   lastname: boolean;
   patronymic: string;
   groupId: number;
-  specialityId: number;
-  facultyId: number;
+  recordBookId: number;
 };
 
 export type StudentCreateAttributes = Partial<StudentAttributes>;
 
 export interface Student
   extends Model<StudentAttributes, StudentCreateAttributes>,
-    StudentAttributes {}
+    StudentAttributes {
+  id: number;
+  firstname: string;
+  lastname: boolean;
+  patronymic: string;
+  groupId: number;
+  recordBookId: number;
+
+  group?: Group;
+}
 
 export default (sequelize: Sequelize, DataTypes: any) => {
   const Student = sequelize.define<Student>(
@@ -24,6 +33,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       firstname: {
         type: DataTypes.STRING,
@@ -38,26 +48,37 @@ export default (sequelize: Sequelize, DataTypes: any) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      specialityId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      facultyId: {
+      recordBookId: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
     },
     {
-      timestamps: false,
+      tableName: 'Students',
+      modelName: 'Student',
     },
   );
 
   //@ts-ignore TODO:
   Student.associate = function (models: Models) {
-    //@ts-ignore TODO:
-    this.belongsTo(models.Speciality, {
-      as: 'speciality',
-      foreignKey: 'specialityId',
+    this.belongsTo(models.Group, {
+      as: 'group',
+      foreignKey: 'groupId',
+    });
+
+    this.hasMany(models.Exam, {
+      as: 'exams',
+      foreignKey: 'studentId',
+    });
+
+    this.hasMany(models.Credit, {
+      as: 'credits',
+      foreignKey: 'studentId',
+    });
+
+    this.hasOne(models.RecordBook, {
+      as: 'recordBook',
+      foreignKey: 'recordBookId',
     });
   };
 

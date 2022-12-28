@@ -19,6 +19,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,
@@ -28,16 +29,27 @@ export default (sequelize: Sequelize, DataTypes: any) => {
     },
     {
       timestamps: false,
+      tableName: 'Subjects',
+      modelName: 'Subject',
     },
   );
 
   //@ts-ignore TODO:
   Subject.associate = function (models: Models) {
-    //@ts-ignore TODO:
     this.belongsToMany(models.Teacher, {
       through: 'TeachersSubjects',
       foreignKey: 'subjectId',
       otherKey: 'teacherId',
+    });
+
+    this.hasMany(models.Exam, {
+      as: 'exams',
+      foreignKey: 'subjectId',
+    });
+
+    this.hasMany(models.Credit, {
+      as: 'credits',
+      foreignKey: 'subjectId',
     });
   };
 

@@ -1,5 +1,5 @@
 import { Model } from 'sequelize';
-import { Sequelize } from './index';
+import { Models, Sequelize } from './index';
 
 export type FacultyAttributes = {
   id: number;
@@ -19,6 +19,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,
@@ -27,19 +28,18 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       },
     },
     {
-      timestamps: false,
+      tableName: 'Faculties',
+      modelName: 'Faculty',
     },
   );
 
   //@ts-ignore TODO:
-  // Faculty.associate = function (models: Models) {
-  //   //@ts-ignore TODO:
-  //   this.belongsToMany(models.Teacher, {
-  //     through: 'TeachersFacultys',
-  //     foreignKey: 'subjectId',
-  //     otherKey: 'teacherId',
-  //   });
-  // };
+  Faculty.associate = function (models: Models) {
+    this.hasMany(models.Speciality, {
+      as: 'specialities',
+      foreignKey: 'facultyId',
+    });
+  };
 
   return Faculty;
 };

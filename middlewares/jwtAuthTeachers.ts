@@ -10,7 +10,7 @@ export const jwtAuthTeachers = async (
   next: NextFunction,
 ) => {
   try {
-    const token = req.headers['Authorization'];
+    const token = req.headers['authorization'];
 
     const { id } = jwt.verify(token, process.env.JWT_SECRET) as { id: number };
 

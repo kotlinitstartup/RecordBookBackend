@@ -4,6 +4,7 @@ import { Sequelize } from './index';
 export type GroupAttributes = {
   id: number;
   name: string;
+  specialityId: number;
 };
 
 export type GroupCreateAttributes = Partial<GroupAttributes>;
@@ -19,27 +20,36 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,
       },
+      specialityId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     {
-      timestamps: false,
+      tableName: 'Groups',
+      modelName: 'Group',
     },
   );
 
-  //@ts-ignore TODO:
-  // Group.associate = function (models: Models) {
-  //   //@ts-ignore TODO:
-  //   this.belongsToMany(models.Teacher, {
-  //     through: 'TeachersGroups',
-  //     foreignKey: 'subjectId',
-  //     otherKey: 'teacherId',
-  //   });
-  // };
+  //@ts-ignore
+  Group.associate = function (models: Models) {
+    this.belongsTo(models.Speciality, {
+      as: 'speciality',
+      foreignKey: 'specialityId',
+    });
+
+    this.hasMany(models.Student, {
+      as: 'students',
+      foreignKey: 'groupId',
+    });
+  };
 
   return Group;
 };
