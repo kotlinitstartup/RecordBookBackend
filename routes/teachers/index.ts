@@ -115,39 +115,38 @@ teachersRouter.get(
 
       const currentUser = res.locals.user;
 
+      const sequelizeOptions = {
+        where: {
+          semesterId,
+          subjectId,
+          teacherId: currentUser.id,
+        },
+        attributes: ['mark'],
+        include: [
+          {
+            association: 'student',
+            where: {
+              groupId,
+            },
+            attributes: ['firstname', 'lastname'],
+            include: [
+              {
+                association: 'recordBook',
+              },
+            ],
+          },
+        ],
+      };
+
       if (type === 'exam') {
         const examRecords = await models.Exam.findAll({
-          where: {
-            semesterId,
-            subjectId,
-            teacherId: currentUser.id,
-          },
-          include: [
-            {
-              association: 'student',
-              where: {
-                groupId,
-              },
-            },
-          ],
+          ...sequelizeOptions,
         });
 
         return res.status(HTTP_STATUS_CODES.OK).json(examRecords);
       } else {
         const creditRecords = await models.Credit.findAll({
-          where: {
-            semesterId,
-            subjectId,
-            teacherId: currentUser.id,
-          },
-          include: [
-            {
-              association: 'student',
-              where: {
-                groupId,
-              },
-            },
-          ],
+          ...sequelizeOptions,
         });
 
         return res.status(HTTP_STATUS_CODES.OK).json(creditRecords);
