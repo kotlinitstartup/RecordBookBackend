@@ -159,4 +159,78 @@ teachersRouter.get(
   },
 );
 
+teachersRouter.put(
+  '/students/marks',
+  jwtAuthTeachers,
+  checkSchema({
+    students: {
+      isArray: true,
+    },
+    'students.id': {
+      isInt: true,
+      toInt: true,
+    },
+    // Mark может быть оценкой или id статуса зачета
+    'students.mark': {
+      isInt: true,
+      toInt: true,
+    },
+    type: {
+      isString: true,
+    },
+  }),
+  validateErrorsHandler,
+  async (req: Request, res: TypedResponseWithLocals<{ user: Teacher }>) => {
+    try {
+      const { students, type } = matchedData(req, {
+        locations: ['body'],
+      }) as {
+        type: 'exam' | 'credit';
+        students: { id: number; mark: number }[];
+      };
+
+      const currentUser = res.locals.user;
+
+      if (type === 'exam') {
+        await Promise.all(
+          students.map(async (student) => {
+            const exam = await models.Exam.findOne({
+              where: {
+                studentId: student.id,
+                teacherId: currentUser.id,
+              },
+            });
+
+            if (exam) {
+              exam.update({ mark: student.mark });
+            }
+          }),
+        );
+
+        return res.status(HTTP_STATUS_CODES.OK);
+      } else {
+        await Promise.all(
+          students.map(async (student) => {
+            const credit = await models.Credit.findOne({
+              where: {
+                studentId: student.id,
+                teacherId: currentUser.id,
+              },
+            });
+
+            if (credit) {
+              credit.update({ status: student.mark });
+            }
+          }),
+        );
+
+        return res.status(HTTP_STATUS_CODES.OK);
+      }
+    } catch (error) {
+      console.error(error.message);
+      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
+    }
+  },
+);
+
 export { teachersRouter };
