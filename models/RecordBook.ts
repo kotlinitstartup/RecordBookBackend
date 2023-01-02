@@ -3,7 +3,8 @@ import { Models, Sequelize } from './index';
 
 export type RecordBookAttributes = {
   id: number;
-  name: string;
+  number: string;
+  studentId: number;
 };
 
 export type RecordBookCreateAttributes = Partial<RecordBookAttributes>;
@@ -21,10 +22,13 @@ export default (sequelize: Sequelize, DataTypes: any) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      name: {
+      number: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,
+      },
+      studentId: {
+        type: DataTypes.INTEGER,
       },
     },
     {

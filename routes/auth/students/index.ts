@@ -1,88 +1,123 @@
-import bcrypt from 'bcrypt';
 import { Response, Router } from 'express';
 import { check, matchedData } from 'express-validator';
+import { Transaction } from 'sequelize';
 import { HTTP_STATUS_CODES } from '../../../constants/httpStatusCodes';
 import { onlyAdmin } from '../../../middlewares/onlyAdmin';
 import validateErrorsHandler from '../../../middlewares/validateErrorsHandler';
-import { models } from '../../../models';
+import { models, sequelize } from '../../../models';
+import { RecordBook } from '../../../models/RecordBook';
 import { TypedRequestWithBody } from '../../../types/express';
+import { signPayload } from '../../../utils/jwt';
 import { LoginPayload } from './login.dto';
 
 const studentsAuthRouter = Router();
 
 studentsAuthRouter.post(
   '/login',
-  check('email').isEmail().withMessage('Вы передали не email'),
-  check('password')
-    .isLength({ min: 4, max: 16 })
-    .withMessage(
-      'Пароль должен быть не менее 4 символов и 16 символов в длину',
-    ),
+  check('recordBookNumber')
+    .isString()
+    .isLength({ min: 10, max: 10 })
+    .withMessage('Длина номера зачетки должна быть 10 символов'),
   validateErrorsHandler,
   async (req: TypedRequestWithBody<LoginPayload>, res: Response) => {
-    const { email, password } = matchedData(req);
-    console.log('{ email, password } ', { email, password });
+    const { recordBookNumber } = matchedData(req, { locations: ['body'] });
 
-    const currentTeacher = await models.Teacher.findOne({
+    const currentRecordBook = await models.RecordBook.findOne({
       where: {
-        email,
+        number: recordBookNumber,
       },
-      attributes: ['id', 'firstname', 'lastname', 'password'],
+      attributes: ['id', 'studentId'],
     });
 
-    if (!currentTeacher) {
+    if (!currentRecordBook) {
       return res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-        message: 'По данному email не найден пользователь',
+        message: 'По данному номеру зачетки не найден студент',
       });
     }
 
-    const isCorrectPassword = await bcrypt.compare(
-      password,
-      currentTeacher.password,
-    );
-
-    if (!isCorrectPassword) {
-      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED);
-    }
+    const student = await models.Student.findByPk(currentRecordBook.studentId);
 
     return res.status(HTTP_STATUS_CODES.OK).json({
-      id: currentTeacher.id,
-      firstname: currentTeacher.firstname,
-      lastname: currentTeacher.lastname,
+      user: student,
+      token: signPayload({ id: currentRecordBook.studentId }),
     });
   },
 );
 
+function generateRandomNumberString() {
+  let result = '';
+  for (let i = 0; i < 10; i++) {
+    result += Math.floor(Math.random() * 10);
+  }
+  return result;
+}
+
+const createRecordBook = async (
+  transaction: Transaction,
+): Promise<RecordBook> => {
+  const newNumber = generateRandomNumberString();
+
+  const existsRecordBook = await models.RecordBook.findOne({
+    where: {
+      number: newNumber,
+    },
+  });
+
+  if (existsRecordBook) {
+    return createRecordBook(transaction);
+  }
+
+  const createdRecordBook = await models.RecordBook.create(
+    {
+      number: newNumber,
+    },
+    {
+      transaction,
+    },
+  );
+
+  return createdRecordBook;
+};
+
 studentsAuthRouter.post(
   '/signup',
   onlyAdmin,
-  check('email').isEmail().withMessage('Вы передали не email'),
   check('firstname').isString(),
   check('lastname').isString(),
   check('patronymic').isString(),
-  check('password')
-    .isLength({ min: 4, max: 16 })
-    .withMessage(
-      'Пароль должен быть не менее 4 символов и 16 символов в длину',
-    ),
+  check('groupId').isInt().toInt(),
   validateErrorsHandler,
   async (req: TypedRequestWithBody<LoginPayload>, res: Response) => {
-    const { email, firstname, lastname, patronymic, password } = matchedData(
-      req,
-      {
-        locations: ['body'],
-      },
-    );
+    const { firstname, lastname, patronymic, groupId } = matchedData(req, {
+      locations: ['body'],
+    });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashingPassword = await bcrypt.hash(password, salt);
+    await sequelize.transaction(async (transaction) => {
+      const currentGroup = await models.Group.findByPk(groupId);
 
-    await models.Teacher.create({
-      email,
-      firstname,
-      lastname,
-      patronymic,
-      password: hashingPassword,
+      if (!currentGroup) {
+        throw new Error('Нет такой группы');
+      }
+
+      const createdRecordBook = await createRecordBook(transaction);
+
+      const createdStudent = await models.Student.create(
+        {
+          firstname,
+          lastname,
+          patronymic,
+          groupId,
+          recordBookId: createdRecordBook.id,
+        },
+        {
+          transaction,
+        },
+      );
+
+      await createdRecordBook.update(
+        { studentId: createdStudent.id },
+        { transaction },
+      );
     });
 
     return res.status(HTTP_STATUS_CODES.OK);

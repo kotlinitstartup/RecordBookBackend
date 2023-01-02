@@ -4,6 +4,7 @@ import { Sequelize } from './index';
 export type GroupAttributes = {
   id: number;
   name: string;
+  course: number;
   specialityId: number;
 };
 
@@ -25,6 +26,10 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       name: {
         type: DataTypes.STRING,
         unique: true,
+        allowNull: false,
+      },
+      course: {
+        type: DataTypes.SMALLINT,
         allowNull: false,
       },
       specialityId: {

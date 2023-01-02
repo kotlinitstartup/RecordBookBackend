@@ -1,18 +1,15 @@
 import bcrypt from 'bcrypt';
 import { Response, Router } from 'express';
 import { check, matchedData } from 'express-validator';
-import jwt from 'jsonwebtoken';
 import { HTTP_STATUS_CODES } from '../../../constants/httpStatusCodes';
 import { onlyAdmin } from '../../../middlewares/onlyAdmin';
 import validateErrorsHandler from '../../../middlewares/validateErrorsHandler';
 import { models } from '../../../models';
 import { TypedRequestWithBody } from '../../../types/express';
+import { signPayload } from '../../../utils/jwt';
 import { LoginPayload } from './login.dto';
 
 const teachersAuthRouter = Router();
-
-const signPayload = (payload: { id: number }) =>
-  jwt.sign(payload, process.env.JWT_SECRET);
 
 teachersAuthRouter.post(
   '/login',
@@ -94,8 +91,6 @@ teachersAuthRouter.post(
       patronymic,
       password: hashingPassword,
     });
-
-    console.log('Успех логина');
 
     return res.sendStatus(HTTP_STATUS_CODES.OK);
   },
