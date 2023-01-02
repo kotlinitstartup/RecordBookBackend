@@ -219,7 +219,7 @@ teachersRouter.put(
             });
 
             if (credit) {
-              credit.update({ status: student.mark });
+              credit.update({ statusId: student.mark });
             }
           }),
         );
