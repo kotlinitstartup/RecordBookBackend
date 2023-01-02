@@ -120,7 +120,7 @@ studentsAuthRouter.post(
       );
     });
 
-    return res.status(HTTP_STATUS_CODES.OK);
+    return res.sendStatus(HTTP_STATUS_CODES.OK);
   },
 );
 

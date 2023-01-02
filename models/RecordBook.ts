@@ -29,6 +29,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       },
       studentId: {
         type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

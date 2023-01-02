@@ -70,6 +70,9 @@ export default (sequelize: Sequelize, DataTypes: any) => {
     {
       tableName: 'Teachers',
       modelName: 'Teacher',
+      defaultScope: {
+        attributes: { exclude: ['password'] },
+      },
     },
   );
 
@@ -88,8 +91,6 @@ export default (sequelize: Sequelize, DataTypes: any) => {
     this.belongsToMany(models.Subject, {
       as: 'subjects',
       through: 'TeachersSubjects',
-      foreignKey: 'teacherId',
-      otherKey: 'subjectId',
     });
   };
 

@@ -38,8 +38,6 @@ export default (sequelize: Sequelize, DataTypes: any) => {
   Subject.associate = function (models: Models) {
     this.belongsToMany(models.Teacher, {
       through: 'TeachersSubjects',
-      foreignKey: 'subjectId',
-      otherKey: 'teacherId',
     });
 
     this.hasMany(models.Exam, {

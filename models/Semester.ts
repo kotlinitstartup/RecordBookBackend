@@ -35,15 +35,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
   );
 
   //@ts-ignore TODO:
-  Semester.associate = function (models: Models) {
-    this.belongsTo(models.Exam, {
-      foreignKey: 'semesterId',
-    });
-
-    this.belongsTo(models.Credit, {
-      foreignKey: 'semesterId',
-    });
-  };
+  Semester.associate = function (models: Models) {};
 
   return Semester;
 };

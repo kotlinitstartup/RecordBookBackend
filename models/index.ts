@@ -49,17 +49,17 @@ export type Models = {
 const models: Models = {};
 
 [
+  require('./Faculty'),
+  require('./Speciality'),
+  require('./Group'),
   require('./RecordBook'),
   require('./Semester'),
-  require('./Credit'),
   require('./CreditStatuses'),
-  require('./Exam'),
-  require('./Faculty'),
-  require('./Group'),
-  require('./Speciality'),
   require('./Student'),
   require('./Subject'),
   require('./Teacher'),
+  require('./Exam'),
+  require('./Credit'),
 ].forEach(({ default: mdl }) => {
   const model = mdl(sequelize, DataTypes);
   models[model.name] = model;
@@ -68,6 +68,6 @@ const models: Models = {};
 // @ts-ignore Потому что ради одного раза не буду расширять тайпинги
 Object.values(models).forEach((mdl) => mdl?.associate?.(models));
 
-sequelize.sync({ force: true, alter: true });
+sequelize.sync();
 
 export { models, sequelize, Sequelize };
