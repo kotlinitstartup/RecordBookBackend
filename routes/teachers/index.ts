@@ -4,13 +4,15 @@ import { uniqBy } from 'lodash';
 import { HTTP_STATUS_CODES } from '../../constants/httpStatusCodes';
 import { jwtAuthTeachers } from '../../middlewares/jwtAuthTeachers';
 import validateErrorsHandler from '../../middlewares/validateErrorsHandler';
-import { models } from '../../models';
+import { models, Sequelize } from '../../models';
 import { Credit } from '../../models/Credit';
 import { Exam } from '../../models/Exam';
 import { Teacher } from '../../models/Teacher';
 import { TypedResponseWithLocals } from '../../types/express';
 
 const teachersRouter = Router();
+
+const { literal: lt } = Sequelize;
 
 teachersRouter.get(
   '/filters',
@@ -115,38 +117,61 @@ teachersRouter.get(
 
       const currentUser = res.locals.user;
 
-      const sequelizeOptions = {
-        where: {
-          semesterId,
-          subjectId,
-          teacherId: currentUser.id,
-        },
-        attributes: ['mark'],
-        include: [
-          {
-            association: 'student',
-            where: {
-              groupId,
-            },
-            attributes: ['firstname', 'lastname'],
-            include: [
-              {
-                association: 'recordBook',
-              },
-            ],
-          },
-        ],
-      };
+      const sequelizeOptions = {};
 
       if (type === 'exam') {
         const examRecords = await models.Exam.findAll({
-          ...sequelizeOptions,
+          where: {
+            semesterId,
+            subjectId,
+            teacherId: currentUser.id,
+          },
+          attributes: ['mark'],
+          include: [
+            {
+              association: 'student',
+              where: {
+                groupId,
+              },
+              attributes: ['id', 'firstname', 'lastname'],
+              include: [
+                {
+                  association: 'recordBook',
+                },
+              ],
+            },
+          ],
         });
 
         return res.status(HTTP_STATUS_CODES.OK).json(examRecords);
       } else {
         const creditRecords = await models.Credit.findAll({
-          ...sequelizeOptions,
+          where: {
+            semesterId,
+            subjectId,
+            teacherId: currentUser.id,
+          },
+          attributes: {
+            include: [[lt('status.alias'), 'mark']],
+          },
+          include: [
+            {
+              association: 'student',
+              where: {
+                groupId,
+              },
+              attributes: ['id', 'firstname', 'lastname'],
+              include: [
+                {
+                  association: 'recordBook',
+                },
+              ],
+            },
+            {
+              association: 'status',
+              attributes: [],
+            },
+          ],
         });
 
         return res.status(HTTP_STATUS_CODES.OK).json(creditRecords);
