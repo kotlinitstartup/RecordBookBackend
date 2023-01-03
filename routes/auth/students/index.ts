@@ -21,7 +21,7 @@ studentsAuthRouter.post(
   validateErrorsHandler,
   async (req: TypedRequestWithBody<LoginPayload>, res: Response) => {
     const { recordBookNumber } = matchedData(req, { locations: ['body'] });
-
+    console.log('recordBookNumber', recordBookNumber);
     const currentRecordBook = await models.RecordBook.findOne({
       where: {
         number: recordBookNumber,

@@ -76,7 +76,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
       foreignKey: 'studentId',
     });
 
-    this.hasOne(models.RecordBook, {
+    this.belongsTo(models.RecordBook, {
       as: 'recordBook',
       foreignKey: 'recordBookId',
     });

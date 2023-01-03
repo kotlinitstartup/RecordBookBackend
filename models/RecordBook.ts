@@ -41,7 +41,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
 
   //@ts-ignore TODO:
   RecordBook.associate = function (models: Models) {
-    this.belongsTo(models.Student, {
+    this.hasOne(models.Student, {
       as: 'student',
     });
   };
