@@ -218,12 +218,17 @@ teachersRouter.put(
       if (type === 'exam') {
         await Promise.all(
           students.map(async (student) => {
+            console.log({
+              studentId: student.id,
+              teacherId: currentUser.id,
+            });
             const exam = await models.Exam.findOne({
               where: {
                 studentId: student.id,
                 teacherId: currentUser.id,
               },
             });
+            console.log('exam', exam);
 
             if (exam) {
               exam.update({ mark: student.mark });
