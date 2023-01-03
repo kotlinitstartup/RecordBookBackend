@@ -190,15 +190,6 @@ teachersRouter.put(
     students: {
       isArray: true,
     },
-    'students.id': {
-      isInt: true,
-      toInt: true,
-    },
-    // Mark может быть оценкой или id статуса зачета
-    'students.mark': {
-      isInt: true,
-      toInt: true,
-    },
     type: {
       isString: true,
     },
@@ -228,7 +219,6 @@ teachersRouter.put(
                 teacherId: currentUser.id,
               },
             });
-            console.log('exam', exam);
 
             if (exam) {
               exam.update({ mark: student.mark });
@@ -236,7 +226,7 @@ teachersRouter.put(
           }),
         );
 
-        return res.status(HTTP_STATUS_CODES.OK);
+        return res.sendStatus(HTTP_STATUS_CODES.OK);
       } else {
         await Promise.all(
           students.map(async (student) => {
@@ -253,7 +243,7 @@ teachersRouter.put(
           }),
         );
 
-        return res.status(HTTP_STATUS_CODES.OK);
+        return res.sendStatus(HTTP_STATUS_CODES.OK);
       }
     } catch (error) {
       console.error(error.message);
