@@ -117,9 +117,7 @@ teachersRouter.get(
 
       const currentUser = res.locals.user;
 
-      const sequelizeOptions = {};
-
-      if (type === 'exam') {
+      if (type === 'Экзамен') {
         const examRecords = await models.Exam.findAll({
           where: {
             semesterId,
@@ -200,13 +198,13 @@ teachersRouter.put(
       const { students, type } = matchedData(req, {
         locations: ['body'],
       }) as {
-        type: 'exam' | 'credit';
+        type: 'Экзамен' | 'credit';
         students: { id: number; mark: number }[];
       };
 
       const currentUser = res.locals.user;
 
-      if (type === 'exam') {
+      if (type === 'Экзамен') {
         await Promise.all(
           students.map(async (student) => {
             console.log({

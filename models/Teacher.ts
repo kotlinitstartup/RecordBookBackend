@@ -91,6 +91,7 @@ export default (sequelize: Sequelize, DataTypes: any) => {
     this.belongsToMany(models.Subject, {
       as: 'subjects',
       through: 'TeachersSubjects',
+      foreignKey: 'teacherId',
     });
   };
 

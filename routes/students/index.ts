@@ -35,9 +35,7 @@ studentsRouter.get(
 
       const currentUser = res.locals.user;
 
-      const isExam = type === 'exam';
-
-      if (type === 'exam') {
+      if (type === 'Экзамен') {
         const examRecords = await models.Exam.findAll({
           where: {
             semesterId,
