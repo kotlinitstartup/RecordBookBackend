@@ -20,8 +20,21 @@ teachersRouter.get(
   async (req: Request, res: TypedResponseWithLocals<{ user: Teacher }>) => {
     try {
       const currentUser = res.locals.user;
-      const subjects = await currentUser.getSubjects({
-        attributes: ['id', 'name'],
+
+      const subjects = await models.Subject.findAll({
+        include: [
+          {
+            association: 'teachers',
+            where: {
+              id: currentUser.id,
+            },
+            attributes: [],
+            through: {
+              attributes: [],
+            },
+            required: true,
+          },
+        ],
       });
 
       const exams = await currentUser
@@ -69,7 +82,7 @@ teachersRouter.get(
         examsAndCredits.map((el) => {
           return el.student.group;
         }),
-        'student.group.id',
+        'name',
       );
 
       return res.status(HTTP_STATUS_CODES.OK).json({
