@@ -127,7 +127,6 @@ teachersRouter.get(
         subjectId: number;
         type: string;
       };
-
       const currentUser = res.locals.user;
 
       if (type === 'Экзамен') {
@@ -153,6 +152,8 @@ teachersRouter.get(
             },
           ],
         });
+
+        console.log('examRecords', examRecords);
 
         return res.status(HTTP_STATUS_CODES.OK).json(examRecords);
       } else {
@@ -184,6 +185,8 @@ teachersRouter.get(
             },
           ],
         });
+
+        console.log('creditRecords', creditRecords);
 
         return res.status(HTTP_STATUS_CODES.OK).json(creditRecords);
       }
